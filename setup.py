@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='gitlabhookcatcher',
-      version='0.1dev',
+      version='0.1',
       description='Webhooks handlers for gitlab',
       author='Sebastian Jordan',
       author_email='jordanse@hu-berlin.de',
