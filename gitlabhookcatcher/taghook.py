@@ -21,11 +21,12 @@ import os
 import subprocess
 import tempfile
 from shutil import rmtree
+from hook import HookHandler
 
 
 PORT = 12001
 
-class TagHookHandler(BaseHTTPRequestHandler):
+class TagHookHandler(HookHandler):
     """Request handler to handle the tag web hook
 
     You need to specify a pypi repository for the hook handler to
@@ -42,7 +43,11 @@ class TagHookHandler(BaseHTTPRequestHandler):
         json_string = self.rfile.read(content_length)
 
         # send ok
-        self.send_response(200)
+        if self.checkIP():
+            self.send_response(200)
+        else:
+            self.send_response(403)
+            return
 
         # parse json
         data = json.loads(json_string)
@@ -84,7 +89,7 @@ def run_server(port, klass=TagHookHandler):
     print("Start Webserver on port %i" % port)
     print("Hit CTL-C to shut down the server")
     print("Upload new releases to pypi repository \"%s\""\
-          % HookHandler.pypirepo)
+          % TagHookHandler.pypirepo)
     # start web server
     try:
         httpd.serve_forever()

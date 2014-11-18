@@ -35,7 +35,13 @@ if __name__ == '__main__':
         '--repository',
         required=True,
         help='The name of the repository to send the distribution to')
+    parser.add_argument(
+        '--allowed',
+        required=False,
+        nargs='*',
+        help='A list of IP addresses, that are allowed to push events')
     args = parser.parse_args()
+    TagHookHandler.allowedHosts=args.allowed
     TagHookHandler.pypirepo=args.repository
     run_server(port=args.port)
 

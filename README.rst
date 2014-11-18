@@ -16,6 +16,8 @@ two arguments.
 * :code:`--port PORT` specifies the port (suprise)
 * :code:`--repository REPO` specifies the name of the pypi where to
   upload to
+* :code:`--allowed IP [IP ...]` optional argument, list of hosts that
+  are allowed to push events to the server
 
 Configuration
 =============
