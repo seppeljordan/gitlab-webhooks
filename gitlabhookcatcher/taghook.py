@@ -24,8 +24,6 @@ from shutil import rmtree
 from hook import HookHandler
 
 
-PORT = 12001
-
 class TagHookHandler(HookHandler):
     """Request handler to handle the tag web hook
 
