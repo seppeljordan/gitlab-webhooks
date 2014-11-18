@@ -9,5 +9,6 @@ setup(name='gitlabhookcatcher',
       author_email='jordanse@hu-berlin.de',
       url='https://github.com/seppeljordan/gitlab-webhooks',
       packages=['gitlabhookcatcher'],
-      scripts=['gitlab-taghook-catcher']
+      scripts=['gitlab-taghook-catcher'],
+      license="GPLv3",
   )
