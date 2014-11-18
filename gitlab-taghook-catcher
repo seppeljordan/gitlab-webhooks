@@ -2,8 +2,8 @@
 # -*- mode: python -*-
 
 import argparse
-from pypigitlab.taghook import (HookHandler,
-                                run_server)
+from gitlabhookcatcher.taghook import (HookHandler,
+                                       run_server)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(\
