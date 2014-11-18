@@ -13,6 +13,14 @@ Usage
 When calling the catcher with `gitlab-taghook-catcher` you have to give
 two arguments.
 
-* `--port PORT` specifies the port (suprise)
-* `--repository REPO` specifies the name of the pypi where to upload
-  to
+* :code:`--port PORT` specifies the port (suprise)
+* :code:`--repository REPO` specifies the name of the pypi where to
+  upload to
+
+Configuration
+=============
+
+For the script to work it is requiered that user who executes the
+script has a properly configured :code:`.pypirc`.  Also the user
+running script needs read access to the gitlab repository to checkout
+the source.
