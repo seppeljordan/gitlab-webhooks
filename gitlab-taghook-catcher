@@ -2,7 +2,7 @@
 # -*- mode: python -*-
 
 import argparse
-from gitlabhookcatcher.taghook import (HookHandler,
+from gitlabhookcatcher.taghook import (TagHookHandler,
                                        run_server)
 
 if __name__ == '__main__':
@@ -20,6 +20,6 @@ if __name__ == '__main__':
         required=True,
         help='The name of the repository to send the distribution to')
     args = parser.parse_args()
-    HookHandler.pypirepo=args.repository
+    TagHookHandler.pypirepo=args.repository
     run_server(port=args.port)
 

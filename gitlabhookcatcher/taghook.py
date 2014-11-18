@@ -10,7 +10,16 @@ from shutil import rmtree
 
 PORT = 12001
 
-class HookHandler(BaseHTTPRequestHandler):
+class TagHookHandler(BaseHTTPRequestHandler):
+    """Request handler to handle the tag web hook
+
+    You need to specify a pypi repository for the hook handler to
+    work.  You do that by setting the pypirepo field of the class:
+    HookHandler.pypirepo = "yourrepo".
+
+    Notice that the repo name you specify has to appear in the .pypirc
+    of the user running server.
+    """
     def do_POST(self):
         
         # get json string from post
@@ -54,13 +63,14 @@ def handle_tag(repository, reference, pypi):
     rmtree(tempdir_name)
     
         
-def run_server(port):
+def run_server(port, klass=TagHookHandler):
     server_address = ('', port)
-    httpd = HTTPServer(server_address, HookHandler)
+    httpd = HTTPServer(server_address, klass)
     print("Start Webserver on port %i" % port)
     print("Hit CTL-C to shut down the server")
     print("Upload new releases to pypi repository \"%s\""\
           % HookHandler.pypirepo)
+    # start web server
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
