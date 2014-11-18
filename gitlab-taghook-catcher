@@ -1,0 +1,25 @@
+#!/usr/bin/python
+# -*- mode: python -*-
+
+import argparse
+from pypigitlab.taghook import (HookHandler,
+                                run_server)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(\
+        description="Start a webhook "
+                    "catcher for handling 'tag push' events")
+    parser.add_argument(
+        '--port', 
+        type=int,
+        required=True,
+        help='The port where the hook catcher will listen for post '
+             'requests')
+    parser.add_argument(
+        '--repository',
+        required=True,
+        help='The name of the repository to send the distribution to')
+    args = parser.parse_args()
+    HookHandler.pypirepo=args.repository
+    run_server(port=args.port)
+

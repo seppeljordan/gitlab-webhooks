@@ -27,10 +27,12 @@ class HookHandler(BaseHTTPRequestHandler):
         repo = data['repository']['url']
 
         # handle tag
-        handle_tag(repository=repo, reference=ref)
+        handle_tag(repository=repo, reference=ref, pypi=self.pypirepo)
+
+    pypirepo = ""
 
 
-def handle_tag(repository, reference):
+def handle_tag(repository, reference, pypi):
     
     # get current directory
     current_dirname = os.getcwd()
@@ -44,7 +46,7 @@ def handle_tag(repository, reference):
     subprocess.call(['git','checkout',reference])
 
     if os.path.exists('setup.py'):
-        subprocess.call(['python','setup.py','sdist','upload','-r','internal'])
+        subprocess.call(['python','setup.py','sdist','upload','-r',pypi])
 
     # change back to current directory
     os.chdir(current_dirname)
@@ -52,15 +54,14 @@ def handle_tag(repository, reference):
     rmtree(tempdir_name)
     
         
-def run_server():
-    server_address = ('', PORT)
+def run_server(port):
+    server_address = ('', port)
     httpd = HTTPServer(server_address, HookHandler)
-    print("Start Webserver")
+    print("Start Webserver on port %i" % port)
     print("Hit CTL-C to shut down the server")
+    print("Upload new releases to pypi repository \"%s\""\
+          % HookHandler.pypirepo)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         httpd.socket.close()
-
-if __name__ == '__main__':
-    run_server()
