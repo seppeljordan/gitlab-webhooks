@@ -18,7 +18,7 @@
 from distutils.core import setup
 
 setup(name='gitlabhookcatcher',
-      version='1.1',
+      version='1.2',
       description='Webhooks handlers for gitlab',
       author='Sebastian Jordan',
       author_email='jordanse@hu-berlin.de',
