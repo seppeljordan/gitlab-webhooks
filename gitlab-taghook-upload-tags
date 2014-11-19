@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+
+import argparse
+import subprocess
+import os.path
+
+from gitlabhookcatcher.util import withTempDirDo
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repository",
+                        required=True,
+                        help="Repository where tags should be "\
+                             "uploaded from")
+    parser.add_argument(
+        "--pypi",
+        required=True,
+        help="Name of the pypi repository.  This name should "\
+             "appear in your .pypirc")
+    args = parser.parse_args()
+    withTempDirDo(makeTagReleases, 
+                  repo= args.repository, 
+                  pypi = args.pypi
+    )
+
+
+def makeTagReleases(repo, pypi):
+    # clone repository
+    subprocess.call(['git','clone',repo])
+    # get tags
+    tag_proc = subprocess.Popen(['git','tag'],stdout=subprocess.PIPE)
+    (tags, err) = tag_proc.communicate()
+
+    # make releases
+    for tag in tags.split():
+        subprocess.call(['git','checkout',tag])
+        if os.path.exists("setup.py"):
+            subprocess.call(["python",
+                             "setup.py",
+                             "sdist",
+                             "upload",
+                             "-r",
+                             pypi])
+        
+        
+
+if __name__ == '__main__':
+    main()
