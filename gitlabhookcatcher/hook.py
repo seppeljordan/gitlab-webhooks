@@ -28,7 +28,7 @@ class HookHandler(BaseHTTPRequestHandler):
 
     def checkIP(self):
         (host,port) = self.client_address
-        if self.allowedHosts != []:
+        if not self.allowedHosts is None:
             if host in self.allowedHosts:
                 return True
             else:
