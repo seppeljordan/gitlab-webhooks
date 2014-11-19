@@ -19,23 +19,32 @@ import json
 class HookHandler(BaseHTTPRequestHandler):
     """Handler for gitlab webhooks
 
-    This is a subclass of BaseHTTPRequestHandler.  You can specify IP
-    addresse that are allowed to push events to a hookhandler by
-    changing allowdHosts property to a list of strings that represent
-    all IP addresses that are allow to push events.
+    This is a subclass of BaseHTTPRequestHandler.  
+
+    You can specify IP addresse that are allowed to push events to a
+    hookhandler by changing allowdHosts property to a list of strings
+    that represent all IP addresses that are allow to push events.
+
+    You can enable a check for valid repository locations by setting
+    the allowedRepos property of the class to a list of domains that
+    are accepted by the hook, e.g. ["scm.company.net",
+    "git.scm.company.net"].
+
     """
     
-    allowedHosts = []
+    allowedHosts = None
+    allowedRepos = None
 
     def checkIP(self):
         (host,port) = self.client_address
-        if not self.allowedHosts is None:
+        if self.allowedHosts is None or \
+           self.allowedHosts == []:
+            return True
+        else:
             if host in self.allowedHosts:
                 return True
             else:
                 return False
-        else:
-            return True
 
     def getJSON(self):
         """get json data from the request body"""
@@ -51,3 +60,16 @@ class HookHandler(BaseHTTPRequestHandler):
 
         return None
         
+    def checkRepoURL(self,address):
+
+        if self.allowedRepos is None:
+            return True
+        
+        hostname = address.partition("@")[2].partition(":")[0]
+
+        if hostname in self.allowedRepos:
+            return True
+        else:
+            print("Hostname : %s" % hostname)
+            print(self.allowedRepos)
+            return False

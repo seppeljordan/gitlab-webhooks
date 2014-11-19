@@ -13,11 +13,13 @@ Usage
 When calling the catcher with `gitlab-taghook-catcher` you have to give
 two arguments.
 
-* :code:`--port PORT` specifies the port (suprise)
+* :code:`--port PORT` specifies the port (surprise)
 * :code:`--repository REPO` specifies the name of the pypi where to
   upload to
 * :code:`--allowed IP [IP ...]` optional argument, list of hosts that
   are allowed to push events to the server
+* :code:`--gitlabdomain` optional argument, list of hostnames of
+  authorized gitlab instances
 
 Configuration
 =============

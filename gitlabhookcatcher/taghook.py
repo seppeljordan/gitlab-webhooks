@@ -43,12 +43,21 @@ class TagHookHandler(HookHandler):
             return
 
         # parse json
+        print("Parse JSON...")
         data = self.getJSON()
         if data is None:
+            print("... JSON not valid!")
             return
+        print("... JSON okay")
 
         ref = data['ref']
         repo = data['repository']['url']
+
+        print("Check repository URL...")
+        if not self.checkRepoURL(repo):
+            print("... URL not allowed")
+            return
+        print("... URL okay")
 
         # handle tag
         handle_tag(repository=repo, reference=ref, pypi=self.pypirepo)
