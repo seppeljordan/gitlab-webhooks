@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from BaseHTTPServer import BaseHTTPRequestHandler
+import json
 
 class HookHandler(BaseHTTPRequestHandler):
     """Handler for gitlab webhooks
@@ -35,3 +36,13 @@ class HookHandler(BaseHTTPRequestHandler):
                 return False
         else:
             return True
+
+    def getJSON(self):
+        """get json data from the request body"""
+
+        # get json string from post
+        content_length = int(self.headers['Content-Length'])
+        json_string = self.rfile.read(content_length)
+
+        return json.loads(json_string)
+        

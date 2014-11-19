@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
 from BaseHTTPServer import (HTTPServer,
                             BaseHTTPRequestHandler)
 import SocketServer
@@ -36,10 +35,6 @@ class TagHookHandler(HookHandler):
     """
     def do_POST(self):
         
-        # get json string from post
-        content_length = int(self.headers['Content-Length'])
-        json_string = self.rfile.read(content_length)
-
         # send ok
         if self.checkIP():
             self.send_response(200)
@@ -48,8 +43,8 @@ class TagHookHandler(HookHandler):
             return
 
         # parse json
-        data = json.loads(json_string)
-        
+        data = self.getJSON()
+
         ref = data['ref']
         repo = data['repository']['url']
 
