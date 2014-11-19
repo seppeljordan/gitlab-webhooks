@@ -44,6 +44,8 @@ class TagHookHandler(HookHandler):
 
         # parse json
         data = self.getJSON()
+        if data is None:
+            return
 
         ref = data['ref']
         repo = data['repository']['url']

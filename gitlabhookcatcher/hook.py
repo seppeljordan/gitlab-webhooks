@@ -44,5 +44,10 @@ class HookHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers['Content-Length'])
         json_string = self.rfile.read(content_length)
 
-        return json.loads(json_string)
+        try:
+            return json.loads(json_string)
+        except ValueError:
+            return None
+
+        return None
         
