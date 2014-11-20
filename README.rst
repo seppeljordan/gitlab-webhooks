@@ -1,3 +1,4 @@
+
 .. contents::
 
 Introduction
@@ -6,9 +7,25 @@ Introduction
 This package implements a simple catcher for gitlab tag event
 webhooks.  The program will checkout the tag, create a source
 distribution of the python package and upload it to a given pypi.
+There is also a helper script to upload existing tags in a repository
+to pypi.
 
 Usage
 =====
+
+gitlab-taghook-upload-tags
+--------------------------
+
+This script clones a repository to a temporary folder and pushes all
+tags as source releases to a specified pypi repository.
+
+Arguments:
+* :code:`--pypi REPO` PyPI repository where to upload your product to
+* :code:`--repository` URL pointing to the git repository of your sources
+
+
+gitlab-taghook-catcher
+----------------------
 
 When calling the catcher with `gitlab-taghook-catcher` you have to give
 two arguments.
