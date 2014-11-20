@@ -23,6 +23,8 @@ Arguments:
 
 * :code:`--pypi PYPINAME` PyPI repository where to upload your product to
 * :code:`--repository REPO` URL pointing to the git repository of your sources
+* :code:`--python-path PATH` optional argument, path to the python
+  interpreter used to create the distribution
 
 
 gitlab-taghook-catcher
@@ -38,6 +40,8 @@ two arguments.
   are allowed to push events to the server
 * :code:`--gitlabdomain DOMAIN [DOMAIN ..]` optional argument, list of hostnames of
   authorized gitlab instances
+* :code:`--python-path PATH` optional argument, path to the python
+  interpreter used to create the distribution
 
 Configuration
 =============
