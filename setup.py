@@ -18,12 +18,12 @@
 from distutils.core import setup
 
 setup(name='gitlabhookcatcher',
-      version='1.3',
+      version='1.3.1',
       description='Webhooks handlers for gitlab',
       author='Sebastian Jordan',
       author_email='jordanse@hu-berlin.de',
       url='https://github.com/seppeljordan/gitlab-webhooks',
       packages=['gitlabhookcatcher'],
-      scripts=['gitlab-taghook-catcher'],
+      scripts=['gitlab-taghook-catcher','gitlab-taghook-upload-tags'],
       license="GPL",
   )
