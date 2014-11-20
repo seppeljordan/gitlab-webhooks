@@ -1,12 +1,23 @@
 import tempfile
 import os
+from shutil import rmtree
 
 def withTempDirDo(fun,*args, **keywords):
+
     current = os.getcwd()
-    tmpdir = mkdtemp()
+    tmpdir = tempfile.mkdtemp()
+
+    def cleanup():
+        os.chdir(current)
+        rmtree(tmpdir)
+
+
     os.chdir(tmpdir)
-    fun(args, keywords)
-    os.chdir(current)
-    shutil.rmtree(tmpdir)
+    try:
+        fun(*args, **keywords)
+    except:
+        cleanup()
+        raise
+    cleanup()
     
 

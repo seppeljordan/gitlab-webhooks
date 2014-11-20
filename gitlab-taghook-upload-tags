@@ -40,8 +40,14 @@ def main():
 
 
 def makeTagReleases(repo, pypi):
+    """Clone a repository and upload tags to pypi"""
+
     # clone repository
-    subprocess.call(['git','clone',repo])
+    clone_proc = subprocess.Popen(['git','clone',repo,'.'])
+    clone_proc.communicate()
+    if clone_proc.returncode != 0:
+        raise Exception("Cannot clone repository \"%s\"" % repo)
+
     # get tags
     tag_proc = subprocess.Popen(['git','tag'],stdout=subprocess.PIPE)
     (tags, err) = tag_proc.communicate()
