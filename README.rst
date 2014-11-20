@@ -21,8 +21,8 @@ tags as source releases to a specified pypi repository.
 
 Arguments:
 
-* :code:`--pypi REPO` PyPI repository where to upload your product to
-* :code:`--repository` URL pointing to the git repository of your sources
+* :code:`--pypi PYPINAME` PyPI repository where to upload your product to
+* :code:`--repository REPO` URL pointing to the git repository of your sources
 
 
 gitlab-taghook-catcher
@@ -36,7 +36,7 @@ two arguments.
   upload to
 * :code:`--allowed IP [IP ...]` optional argument, list of hosts that
   are allowed to push events to the server
-* :code:`--gitlabdomain` optional argument, list of hostnames of
+* :code:`--gitlabdomain DOMAIN [DOMAIN ..]` optional argument, list of hostnames of
   authorized gitlab instances
 
 Configuration
