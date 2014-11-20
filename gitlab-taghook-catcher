@@ -44,9 +44,16 @@ if __name__ == '__main__':
         '--gitlabdomain',
         required=False,
         help='A list of domains of authorized gitlab instances')
+    parser.add_argument(
+        '--python-path',
+        required=False,
+        help='The path to the python interpreter that will be '
+             'used to create the source distribution')
     args = parser.parse_args()
     TagHookHandler.allowedHosts=args.allowed
     TagHookHandler.pypirepo=args.repository
     TagHookHandler.allowedRepos=args.gitlabdomain
+    if not args.python_path is None:
+        TagHookHandler.python_path = args.python_path
     run_server(port=args.port)
 

@@ -60,12 +60,15 @@ class TagHookHandler(HookHandler):
         print("... URL okay")
 
         # handle tag
-        handle_tag(repository=repo, reference=ref, pypi=self.pypirepo)
+        handle_tag(repository=repo, 
+                   reference=ref, 
+                   pypi=self.pypirepo,
+                   python_path=self.python_path)
 
     pypirepo = ""
 
 
-def handle_tag(repository, reference, pypi):
+def handle_tag(repository, reference, pypi, python_path="python"):
     
     # get current directory
     current_dirname = os.getcwd()
@@ -79,7 +82,7 @@ def handle_tag(repository, reference, pypi):
     subprocess.call(['git','checkout',reference])
 
     if os.path.exists('setup.py'):
-        subprocess.call(['python','setup.py','sdist','upload','-r',pypi])
+        subprocess.call([python_path,'setup.py','sdist','upload','-r',pypi])
 
     # change back to current directory
     os.chdir(current_dirname)

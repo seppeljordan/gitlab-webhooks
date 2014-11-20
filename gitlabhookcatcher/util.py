@@ -20,4 +20,3 @@ def withTempDirDo(fun,*args, **keywords):
         raise
     cleanup()
     
-

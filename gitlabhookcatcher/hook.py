@@ -30,10 +30,14 @@ class HookHandler(BaseHTTPRequestHandler):
     are accepted by the hook, e.g. ["scm.company.net",
     "git.scm.company.net"].
 
+    You can specify the python interpreter that is used to make the
+    distribution by changing the class property `python_path` to the
+    desired path, e.g. `HookHandler.python_path = "/usr/bin/python3".
     """
     
     allowedHosts = None
     allowedRepos = None
+    python_path = "python"
 
     def checkIP(self):
         (host,port) = self.client_address

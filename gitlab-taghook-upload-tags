@@ -33,14 +33,26 @@ def main():
         required=True,
         help="Name of the pypi repository.  This name should "\
              "appear in your .pypirc")
+    parser.add_argument(
+        '--python-path',
+        required=False,
+        help='The path to the python interpreter that will be '
+             'used to create the source distribution')
+
     args = parser.parse_args()
+    
+    python_p = args.python_path
+    if python_p is None:
+        python_p = "python"
+    
     withTempDirDo(makeTagReleases, 
                   repo= args.repository, 
-                  pypi = args.pypi
+                  pypi = args.pypi,
+                  python_path = args.python_path
     )
 
 
-def makeTagReleases(repo, pypi):
+def makeTagReleases(repo, pypi, python_path="python"):
     """Clone a repository and upload tags to pypi"""
 
     # clone repository
@@ -57,7 +69,7 @@ def makeTagReleases(repo, pypi):
     for tag in tags.split():
         subprocess.call(['git','checkout',tag])
         if os.path.exists("setup.py"):
-            subprocess.call(["python",
+            subprocess.call([python_path,
                              "setup.py",
                              "sdist",
                              "upload",
