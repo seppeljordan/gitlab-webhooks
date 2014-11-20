@@ -20,6 +20,7 @@ This script clones a repository to a temporary folder and pushes all
 tags as source releases to a specified pypi repository.
 
 Arguments:
+
 * :code:`--pypi REPO` PyPI repository where to upload your product to
 * :code:`--repository` URL pointing to the git repository of your sources
 
