@@ -23,10 +23,11 @@ from gitlabhookcatcher.util import withTempDirDo
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--repository",
-                        required=True,
-                        help="Repository where tags should be "\
-                             "uploaded from")
+    parser.add_argument(
+        "--repository",
+        required=True,
+        help="Repository where tags should be "\
+             "uploaded from.  This must be an absolute path.")
     parser.add_argument(
         "--pypi",
         required=True,
