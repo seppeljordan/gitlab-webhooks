@@ -67,7 +67,7 @@ def makeTagReleases(repo, pypi, python_path="python"):
 
     # make releases
     for tag in tags.split():
-        subprocess.call(['git','checkout',tag])
+        subprocess.call(['git','checkout',tag,'-f'])
         if os.path.exists("setup.py"):
             subprocess.call([python_path,
                              "setup.py",
