@@ -20,7 +20,7 @@ from distutils.core import setup
 long_description=open('README.rst')
 
 setup(name='gitlabhookcatcher',
-      version='1.5',
+      version='1.6',
       description='Webhooks handlers for gitlab',
       long_description=long_description,
       author='Sebastian Jordan',
