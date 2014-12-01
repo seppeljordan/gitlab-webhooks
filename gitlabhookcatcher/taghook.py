@@ -21,6 +21,7 @@ import subprocess
 import tempfile
 from shutil import rmtree
 from hook import HookHandler
+from util import withTempDirDo
 
 
 class TagHookHandler(HookHandler):
@@ -36,9 +37,7 @@ class TagHookHandler(HookHandler):
     def do_POST(self):
         
         # send ok
-        if self.checkIP():
-            self.send_response(200)
-        else:
+        if not self.checkIP():
             self.send_response(403)
             return
 
@@ -49,48 +48,50 @@ class TagHookHandler(HookHandler):
             print("... JSON not valid!")
             return
         print("... JSON okay")
-
         ref = data['ref']
         repo = data['repository']['url']
 
+        # check repository url
         print("Check repository URL...")
         if not self.checkRepoURL(repo):
             print("... URL not allowed")
+            self.send_response(403)
             return
         print("... URL okay")
+        
+        # everything seems okay
+        self.send_response(200)
 
         # handle tag
-        handle_tag(repository=repo, 
-                   reference=ref, 
-                   pypi=self.pypirepo,
-                   python_path=self.python_path)
+        withTempDirDo(handle_tag, 
+                      repository=repo, 
+                      reference=ref, 
+                      pypi=self.pypirepo,
+                      python_path=self.python_path)
 
-    pypirepo = ""
+    pypirepo = None
 
 
 def handle_tag(repository, reference, pypi, python_path="python"):
-    
-    # get current directory
-    current_dirname = os.getcwd()
-    # create a temporary directory
-    tempdir_name = tempfile.mkdtemp()
+    """checkout revs from a git repo and upload a python sdist to pypi
 
-    # change to temporary directory
-    os.chdir(tempdir_name)
+    This function assumes that your cwd is already pointing to the git
+    repository in question.
+    """
+    
     # pull repository and checkout the reference
     subprocess.call(['git','clone',repository,'-n','.'])
     subprocess.call(['git','checkout',reference])
 
     if os.path.exists('setup.py'):
-        subprocess.call([python_path,'setup.py','sdist','upload','-r',pypi])
-
-    # change back to current directory
-    os.chdir(current_dirname)
-    # delete temporary directory
-    rmtree(tempdir_name)
+        if not pypi is None:
+            subprocess.call([python_path,'setup.py','sdist','upload','-r',pypi])
+        else:
+            subprocess.call([python_path,'setup.py','sdist','upload'])
     
         
 def run_server(port, klass=TagHookHandler):
+    """Start a webserver from the specified class"""
     server_address = ('', port)
     httpd = HTTPServer(server_address, klass)
     print("Start Webserver on port %i" % port)

@@ -17,6 +17,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+"""This program starts a webserver that can handle tag push events
+form gitlab by creating a new python release on a specified pypi
+server."""
+
 import argparse
 from gitlabhookcatcher.taghook import (TagHookHandler,
                                        run_server)
@@ -50,10 +54,16 @@ if __name__ == '__main__':
         help='The path to the python interpreter that will be '
              'used to create the source distribution')
     args = parser.parse_args()
-    TagHookHandler.allowedHosts=args.allowed
-    TagHookHandler.pypirepo=args.repository
-    TagHookHandler.allowedRepos=args.gitlabdomain
+
+    # set the parameters of the server
+    TagHookHandler.allowedHosts=args.allowed # allowed host adresses
+    TagHookHandler.pypirepo=args.repository # pypi repository
+    TagHookHandler.allowedRepos=args.gitlabdomain # domain of the
+                                                  # gitlab instance
     if not args.python_path is None:
+        # python command to create distributions
         TagHookHandler.python_path = args.python_path
+
+    # start server
     run_server(port=args.port)
 

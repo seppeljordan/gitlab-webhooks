@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Upload all the tags of a git repository as new releases to pypi
+server"""
+
 import argparse
 import subprocess
 import os.path
@@ -38,13 +41,13 @@ def main():
         required=False,
         help='The path to the python interpreter that will be '
              'used to create the source distribution')
-
     args = parser.parse_args()
     
     python_p = args.python_path
     if python_p is None:
         python_p = "python"
     
+    # handle git repo
     withTempDirDo(makeTagReleases, 
                   repo= args.repository, 
                   pypi = args.pypi,
@@ -53,7 +56,11 @@ def main():
 
 
 def makeTagReleases(repo, pypi, python_path="python"):
-    """Clone a repository and upload tags to pypi"""
+    """Clone a repository and upload tags to pypi
+
+    This code assumes that the cwd (current working directory) is the
+    git repository in question.
+    """
 
     # clone repository
     clone_proc = subprocess.Popen(['git','clone',repo,'.'])
@@ -75,8 +82,7 @@ def makeTagReleases(repo, pypi, python_path="python"):
                              "upload",
                              "-r",
                              pypi])
-        
-        
+
 
 if __name__ == '__main__':
     main()

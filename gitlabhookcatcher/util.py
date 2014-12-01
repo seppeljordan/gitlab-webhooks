@@ -18,20 +18,28 @@ import os
 from shutil import rmtree
 
 def withTempDirDo(fun,*args, **keywords):
+    """Execute fun with cwd pointing to a new temporal directory.
+
+    cwd means current working directory.
+    """
 
     current = os.getcwd()
+    # create temp dir
     tmpdir = tempfile.mkdtemp()
 
     def cleanup():
+        """Steps to clean up temporal directory"""
         os.chdir(current)
         rmtree(tmpdir)
 
 
     os.chdir(tmpdir)
+    # execute fun
     try:
         fun(*args, **keywords)
     except:
+        # delete the tempdir in case an exception was thrown
         cleanup()
         raise
+    # delete the temp dir
     cleanup()
-    

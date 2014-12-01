@@ -40,6 +40,7 @@ class HookHandler(BaseHTTPRequestHandler):
     python_path = "python"
 
     def checkIP(self):
+        """Check if a request came from an allowed ip address"""
         (host,port) = self.client_address
         if self.allowedHosts is None or \
            self.allowedHosts == []:
@@ -58,13 +59,15 @@ class HookHandler(BaseHTTPRequestHandler):
         json_string = self.rfile.read(content_length)
 
         try:
+            # return json
             return json.loads(json_string)
         except ValueError:
+            # json was invalid
             return None
-
         return None
         
     def checkRepoURL(self,address):
+        """Check if the repository address is valid and allowed"""
 
         if self.allowedRepos is None:
             return True
@@ -74,6 +77,4 @@ class HookHandler(BaseHTTPRequestHandler):
         if hostname in self.allowedRepos:
             return True
         else:
-            print("Hostname : %s" % hostname)
-            print(self.allowedRepos)
             return False
