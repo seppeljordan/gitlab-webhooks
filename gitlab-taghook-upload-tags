@@ -22,7 +22,7 @@ import argparse
 import subprocess
 import os.path
 
-from gitlabhookcatcher.util import withTempDirDo
+from gitlabhookcatcher.util import tempDir
 
 def main():
     parser = argparse.ArgumentParser()
@@ -46,13 +46,10 @@ def main():
     python_p = args.python_path
     if python_p is None:
         python_p = "python"
-    
-    # handle git repo
-    withTempDirDo(makeTagReleases, 
-                  repo= args.repository, 
-                  pypi = args.pypi,
-                  python_path = args.python_path
-    )
+    with tempDir():
+        makeTagReleases(repo= args.repository, 
+                        pypi = args.pypi,
+                        python_path = args.python_path)
 
 
 def makeTagReleases(repo, pypi, python_path="python"):

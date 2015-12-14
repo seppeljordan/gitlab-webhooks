@@ -21,7 +21,7 @@ import subprocess
 import tempfile
 from shutil import rmtree
 from hook import HookHandler
-from util import withTempDirDo
+from util import tempDir
 
 
 class TagHookHandler(HookHandler):
@@ -61,13 +61,11 @@ class TagHookHandler(HookHandler):
         
         # everything seems okay
         self.send_response(200)
-
-        # handle tag
-        withTempDirDo(handle_tag, 
-                      repository=repo, 
-                      reference=ref, 
-                      pypi=self.pypirepo,
-                      python_path=self.python_path)
+        with tempDir():
+            handle_tag(repository=repo, 
+                       reference=ref, 
+                       pypi=self.pypirepo,
+                       python_path=self.python_path)
 
     pypirepo = None
 
