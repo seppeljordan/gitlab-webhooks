@@ -21,8 +21,10 @@ tags as source releases to a specified pypi repository.
 
 Arguments:
 
-* :code:`--pypi PYPINAME` PyPI repository where to upload your product to
-* :code:`--repository REPO` URL pointing to the git repository of your sources
+* :code:`--pypi PYPINAME` PyPI repository where to upload your product
+  to
+* :code:`--repository REPO` URL pointing to the git repository of your
+  sources
 * :code:`--python-path PATH` optional argument, path to the python
   interpreter used to create the distribution
 
@@ -30,18 +32,36 @@ Arguments:
 gitlab-taghook-catcher
 ----------------------
 
-When calling the catcher with `gitlab-taghook-catcher` you have to give
-two arguments.
+When calling the catcher with :code:`gitlab-taghook-catcher` you have
+to give two arguments.
 
 * :code:`--port PORT` specifies the port (surprise)
 * :code:`--repository REPO` specifies the name of the pypi where to
   upload to
 * :code:`--allowed IP [IP ...]` optional argument, list of hosts that
   are allowed to push events to the server
-* :code:`--gitlabdomain DOMAIN [DOMAIN ..]` optional argument, list of hostnames of
-  authorized gitlab instances
+* :code:`--gitlabdomain DOMAIN [DOMAIN ..]` optional argument, list of
+  hostnames of authorized gitlab instances
 * :code:`--python-path PATH` optional argument, path to the python
   interpreter used to create the distribution
+
+The taghook catcher is currently only capable of on type of action and
+that is publishing a python package onto a specified pypi server.  To
+use this functionality you have to send your post requests to
+:code:`hookcatcher.domain/tag`, where :code:`hookcatcher.domain` is
+the address of your hook catcher instance and :code:`/tag` is the path
+that triggers the package building functionality.  You can also post
+to the root path but this is deprecated.
+
+usage in gitlab
+---------------
+
+To use this program for a specific gitlab repository, go to the
+settings section of the repository.  Select the trigger you want to
+configure, e.g. "Tag push events" if you want to send a request to the
+hook catcher when somebody pushes a tag to your gitlab repository.
+Then enter the url pointing to the hook catcher.  Pay attention to the
+path, see section "Usage -> gitlab-taghook-catcher".
 
 Configuration
 =============

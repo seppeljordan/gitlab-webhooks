@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- mode: python -*-
 
 # Copyright 2014 Sebastian Jordan
@@ -18,14 +18,41 @@
 
 
 """This program starts a webserver that can handle tag push events
-form gitlab by creating a new python release on a specified pypi
+fromm gitlab by creating a new python release on a specified pypi
 server."""
 
 import argparse
-from gitlabhookcatcher.taghook import (TagHookHandler,
-                                       run_server)
+from gitlabhookcatcher.taghook import PackageUploader
+from BaseHTTPServer import HTTPServer
+import logging
 
+
+class HumboldtHookHandler(PackageUploader):
+    """This class inherits its functionality from its parents and has no
+    logic by itself.  If you want to extend the functionality of this
+    class, create a seperate class that derives from 'HookHandler' and
+    then derive from this class.  This enables a nice seperation
+    between each class."""
+    pass
+
+
+def run_server(port, handler_klass=HumboldtHookHandler, server_klass=HTTPServer):
+    """Start a webserver from the specified class"""
+    server_address = ('', port)
+    httpd = server_klass(server_address,handler_klass)
+    logging.info("Start Webserver on port %i" % port)
+    logging.info("Hit CTL-C to shut down the server")
+    logging.info("Upload new releases to pypi repository \"%s\""\
+          % handler_klass.pypirepo)
+    # start web server
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        httpd.socket.close()
+
+        
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(\
         description="Start a webhook "
                     "catcher for handling 'tag push' events")
@@ -56,14 +83,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # set the parameters of the server
-    TagHookHandler.allowedHosts=args.allowed # allowed host adresses
-    TagHookHandler.pypirepo=args.repository # pypi repository
-    TagHookHandler.allowedRepos=args.gitlabdomain # domain of the
+    HumboldtHookHandler.allowedHosts=args.allowed # allowed host adresses
+    HumboldtHookHandler.pypirepo=args.repository # pypi repository
+    HumboldtHookHandler.allowedRepos=args.gitlabdomain # domain of the
                                                   # gitlab instance
     if not args.python_path is None:
         # python command to create distributions
-        TagHookHandler.python_path = args.python_path
+        HumboldtHookHandler.python_path = args.python_path
 
     # start server
-    run_server(port=args.port)
-
+    run_server(args.port, HumboldtHookHandler)

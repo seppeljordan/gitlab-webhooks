@@ -15,8 +15,17 @@
 
 from BaseHTTPServer import BaseHTTPRequestHandler
 import json
+import logging
+from urlparse import urlparse, parse_qs
+from os.path import normpath
 
-class HookHandler(BaseHTTPRequestHandler):
+class JsonParseError(Exception):
+    pass
+
+class RoutingError(Exception):
+    pass
+
+class HookHandler(BaseHTTPRequestHandler,object):
     """Handler for gitlab webhooks
 
     This is a subclass of BaseHTTPRequestHandler.  
@@ -33,15 +42,25 @@ class HookHandler(BaseHTTPRequestHandler):
     You can specify the python interpreter that is used to make the
     distribution by changing the class property `python_path` to the
     desired path, e.g. `HookHandler.python_path = "/usr/bin/python3".
+
+    This class is meant for subclassing.  You can implement your
+    functionality by inheriting from this class.  Then you have to
+    implement a function that takes the request content (JSON) and the
+    request parameter as a dictionary.  The implementer of this
+    funcionality has to send the correct response.  See
+    'gitlabhookcatcher.taghook.PackageUploader' for an example.
     """
-    
+
     allowedHosts = None
     allowedRepos = None
     python_path = "python"
+    routing_table = {}
 
-    def checkIP(self):
+    def __get_routing_table__(self):
+        return {}
+    
+    def check_ip(self, host):
         """Check if a request came from an allowed ip address"""
-        (host,port) = self.client_address
         if self.allowedHosts is None or \
            self.allowedHosts == []:
             return True
@@ -51,7 +70,7 @@ class HookHandler(BaseHTTPRequestHandler):
             else:
                 return False
 
-    def getJSON(self):
+    def get_json(self):
         """get json data from the request body"""
 
         # get json string from post
@@ -62,11 +81,16 @@ class HookHandler(BaseHTTPRequestHandler):
             # return json
             return json.loads(json_string)
         except ValueError:
-            # json was invalid
-            return None
-        return None
+            raise JsonParseError("The content of the post request was not "
+                                 "valid json")
+
+    def send_response(self,code):
+        ret = super(HookHandler,self).send_response(code)
+        client_addr, _ = self.client_address
+        logging.info('Sent reply, "%s", "%s"' % (client_addr,str(code)))
+        return ret        
         
-    def checkRepoURL(self,address):
+    def check_repo_url(self,address):
         """Check if the repository address is valid and allowed"""
 
         if self.allowedRepos is None:
@@ -78,3 +102,36 @@ class HookHandler(BaseHTTPRequestHandler):
             return True
         else:
             return False
+
+    def do_POST(self):
+        self.handle_post_path()
+        
+    def handle_post_path(self):
+        client_addr, _ = self.client_address
+        if not self.check_ip(client_addr):
+            logging.info('Client address not allowed, %s',
+                         client_addr)
+            self.send_response(403)
+            return None
+        try:
+            content = self.get_json()
+        except JsonParseError:
+            logging.info('Invalid JSON, "%s"', client_addr)
+            self.send_response(400)
+            return None
+        repo = content['repository']['url']
+        if not self.check_repo_url(repo):
+            logging.info('Repository not allowed: "%s", %s',
+                         repo, client_addr)
+            self.send_response(403)
+            return None
+        path = urlparse(self.path)
+        get_params = parse_qs(path.query)
+        post_path = normpath(path.path)
+        routes = self.__get_routing_table__()
+        try:
+            routes[post_path](self,
+                              body=content,
+                              params=get_params)
+        except KeyError:
+            raise RoutingError('Cannot find "%s" in routing table' % post_path)

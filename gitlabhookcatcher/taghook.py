@@ -20,11 +20,12 @@ import os
 import subprocess
 import tempfile
 from shutil import rmtree
-from hook import HookHandler
 from util import tempDir
 
+from hook import HookHandler, JsonParseError
 
-class TagHookHandler(HookHandler):
+
+class PackageUploader(HookHandler):
     """Request handler to handle the tag web hook
 
     You need to specify a pypi repository for the hook handler to
@@ -34,32 +35,17 @@ class TagHookHandler(HookHandler):
     Notice that the repo name you specify has to appear in the .pypirc
     of the user running server.
     """
-    def do_POST(self):
-        
-        # send ok
-        if not self.checkIP():
-            self.send_response(403)
-            return
 
-        # parse json
-        print("Parse JSON...")
-        data = self.getJSON()
-        if data is None:
-            print("... JSON not valid!")
-            return
-        print("... JSON okay")
-        ref = data['ref']
-        repo = data['repository']['url']
-
-        # check repository url
-        print("Check repository URL...")
-        if not self.checkRepoURL(repo):
-            print("... URL not allowed")
-            self.send_response(403)
-            return
-        print("... URL okay")
-        
-        # everything seems okay
+    def __get_routing_table__(self):
+        """Get the routing table for the hook handler"""
+        table = super(PackageUploader,self).__get_routing_table__()
+        table['/'] = PackageUploader.handle_package_upload
+        table['/tag'] = table['/']
+        return table
+    
+    def handle_package_upload(self, body, params):
+        ref = body['ref']
+        repo = body['repository']['url']
         self.send_response(200)
         with tempDir():
             handle_tag(repository=repo, 
@@ -86,18 +72,3 @@ def handle_tag(repository, reference, pypi, python_path="python"):
             subprocess.call([python_path,'setup.py','sdist','upload','-r',pypi])
         else:
             subprocess.call([python_path,'setup.py','sdist','upload'])
-    
-        
-def run_server(port, klass=TagHookHandler):
-    """Start a webserver from the specified class"""
-    server_address = ('', port)
-    httpd = HTTPServer(server_address, klass)
-    print("Start Webserver on port %i" % port)
-    print("Hit CTL-C to shut down the server")
-    print("Upload new releases to pypi repository \"%s\""\
-          % TagHookHandler.pypirepo)
-    # start web server
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        httpd.socket.close()
