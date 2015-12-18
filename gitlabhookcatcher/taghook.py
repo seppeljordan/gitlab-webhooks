@@ -74,8 +74,12 @@ class PackageUploader(HookHandler):
             except PackageBuildError as e:
                 logging.error('Package from repository "%s", reference "%s", '
                               'cannot be build', repo, ref)
+                if e.stdout:
+                    logging.error('stdout of build command\n' + e.stdout)
+                if e.stderr:
+                    logging.error('stderr of build command\n' + e.stderr)
                 self.send_response(400)
-                raise e
+                return
         self.send_response(200)
 
     pypirepo = None
@@ -98,9 +102,11 @@ def handle_tag(repository, reference, pypi, python_path="python"):
         cmd += ['-r', pypi]
 
     if not os.path.exists('setup.py'):
-        raise PackageBuildError('setup.py was not found in repository "%s" for '
-                                'reference "%s"' % (repository, reference))
-    proc = subprocess.Popen(cmd)
+        raise PackageBuildError('setup.py was not found in repository "%s" '
+                                'for reference "%s"' % (repository, reference))
+    proc = subprocess.Popen(cmd,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
     proc_out, proc_err = proc.communicate()
     if proc.returncode != 0:
         raise PackageBuildError('Cannot build package from repository "%s", '
