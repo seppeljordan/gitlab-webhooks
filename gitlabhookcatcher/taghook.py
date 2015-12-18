@@ -15,15 +15,30 @@
 
 import logging
 import os
-import SocketServer
 import subprocess
-import tempfile
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from functools import partial
 from shutil import rmtree
 
 from hook import HookHandler, JsonParseError
 from util import tempDir
+
+
+class PackageBuildError(Exception):
+    def __init__(self, *args, **kwargs):
+        try:
+            build_stdout = kwargs['build_stdout']
+            del kwargs['build_stdout']
+        except KeyError:
+            build_stdout = None
+        try:
+            build_stderr = kwargs['build_stderr']
+            del kwargs['build_stderr']
+        except KeyError:
+            build_stderr = None
+        ret = super(PackageBuildError, self).__init__(*args, **kwargs)
+        self.stdout = build_stdout
+        self.stderr = build_stderr
+        return ret
 
 
 class PackageUploader(HookHandler):
@@ -44,18 +59,28 @@ class PackageUploader(HookHandler):
             deprecate,
             PackageUploader.handle_package_upload,
             "Posting to the root is deprecated, use '/tag' path instead")
-        table['/tag'] = table['/']
+        table['/tag'] = PackageUploader.handle_package_upload
         return table
 
     def handle_package_upload(self, body, params):
         ref = body['ref']
         repo = body['repository']['url']
-        self.send_response(200)
         with tempDir():
-            handle_tag(repository=repo,
-                       reference=ref,
-                       pypi=self.pypirepo,
-                       python_path=self.python_path)
+            try:
+                handle_tag(repository=repo,
+                           reference=ref,
+                           pypi=self.pypirepo,
+                           python_path=self.python_path)
+            except PackageBuildError as e:
+                logging.error('Package from repository "%s", reference "%s", '
+                              'cannot be build', repo, ref)
+                if e.stdout:
+                    logging.error('stdout of build command\n' + e.stdout)
+                if e.stderr:
+                    logging.error('stderr of build command\n' + e.stderr)
+                self.send_response(400)
+                return
+        self.send_response(200)
 
     pypirepo = None
 
@@ -72,9 +97,19 @@ def handle_tag(repository, reference, pypi, python_path="python"):
     subprocess.call(['git', 'clone', '--quiet', repository, '-n', '.'])
     subprocess.call(['git', 'checkout', '--quiet', reference])
 
-    if os.path.exists('setup.py'):
-        if pypi is not None:
-            subprocess.call([python_path, 'setup.py', '-q', 'sdist', 'upload',
-                             '-r', pypi])
-        else:
-            subprocess.call([python_path, 'setup.py', '-q', 'sdist', 'upload'])
+    cmd = [python_path, 'setup.py', '-q', 'sdist', 'upload']
+    if pypi is not None:
+        cmd += ['-r', pypi]
+
+    if not os.path.exists('setup.py'):
+        raise PackageBuildError('setup.py was not found in repository "%s" '
+                                'for reference "%s"' % (repository, reference))
+    proc = subprocess.Popen(cmd,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    proc_out, proc_err = proc.communicate()
+    if proc.returncode != 0:
+        raise PackageBuildError('Cannot build package from repository "%s", '
+                                'reference "%s"' % (repository, reference),
+                                build_stdout=proc_out,
+                                build_stderr=proc_err)

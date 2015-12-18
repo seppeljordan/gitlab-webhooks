@@ -123,10 +123,10 @@ class HookHandler(BaseHTTPRequestHandler, object):
         get_params = parse_qs(path.query)
         post_path = normpath(path.path)
         routes = self.__get_routing_table__()
-        try:
+        if post_path in routes.keys():
             routes[post_path](self,
                               body=content,
                               params=get_params)
-        except KeyError:
+        else:
             self.send_response(404)
         return None
