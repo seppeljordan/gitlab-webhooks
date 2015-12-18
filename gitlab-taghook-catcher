@@ -53,7 +53,6 @@ def run_server(port, handler_klass=HumboldtHookHandler, server_klass=HTTPServer)
 
         
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(\
         description="Start a webhook "
                     "catcher for handling 'tag push' events")
@@ -81,7 +80,13 @@ if __name__ == '__main__':
         required=False,
         help='The path to the python interpreter that will be '
              'used to create the source distribution')
+    parser.add_argument(
+        '--logfile',
+        required=False,
+        help='Specify a file where this program should log its '
+             'its output to')
     args = parser.parse_args()
+    logging.basicConfig(filename=args.logfile, level=logging.INFO)
 
     # set the parameters of the server
     HumboldtHookHandler.allowedHosts=args.allowed # allowed host adresses
