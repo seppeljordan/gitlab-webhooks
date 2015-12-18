@@ -22,9 +22,10 @@ fromm gitlab by creating a new python release on a specified pypi
 server."""
 
 import argparse
-from gitlabhookcatcher.taghook import PackageUploader
-from BaseHTTPServer import HTTPServer
 import logging
+from BaseHTTPServer import HTTPServer
+
+from gitlabhookcatcher.taghook import PackageUploader
 
 
 class HumboldtHookHandler(PackageUploader):

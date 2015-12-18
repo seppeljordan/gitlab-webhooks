@@ -13,10 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import tempfile
 import os
-from shutil import rmtree
+import tempfile
 from contextlib import contextmanager
+from shutil import rmtree
+
 
 @contextmanager
 def tempDir():

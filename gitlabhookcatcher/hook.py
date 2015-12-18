@@ -13,22 +13,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from BaseHTTPServer import BaseHTTPRequestHandler
 import json
 import logging
-from urlparse import urlparse, parse_qs
+from BaseHTTPServer import BaseHTTPRequestHandler
 from os.path import normpath
+from urlparse import parse_qs, urlparse
+
 
 class JsonParseError(Exception):
     pass
 
+
 class RoutingError(Exception):
     pass
 
-class HookHandler(BaseHTTPRequestHandler,object):
+
+class HookHandler(BaseHTTPRequestHandler, object):
     """Handler for gitlab webhooks
 
-    This is a subclass of BaseHTTPRequestHandler.  
+    This is a subclass of BaseHTTPRequestHandler.
 
     You can specify IP addresse that are allowed to push events to a
     hookhandler by changing allowdHosts property to a list of strings
@@ -58,7 +61,7 @@ class HookHandler(BaseHTTPRequestHandler,object):
 
     def __get_routing_table__(self):
         return {}
-    
+
     def check_ip(self, host):
         """Check if a request came from an allowed ip address"""
         if self.allowedHosts is None or \
@@ -72,11 +75,8 @@ class HookHandler(BaseHTTPRequestHandler,object):
 
     def get_json(self):
         """get json data from the request body"""
-
-        # get json string from post
         content_length = int(self.headers['Content-Length'])
         json_string = self.rfile.read(content_length)
-
         try:
             # return json
             return json.loads(json_string)
@@ -84,29 +84,23 @@ class HookHandler(BaseHTTPRequestHandler,object):
             raise JsonParseError("The content of the post request was not "
                                  "valid json")
 
-    def send_response(self,code):
-        ret = super(HookHandler,self).send_response(code)
+    def send_response(self, code):
+        ret = super(HookHandler, self).send_response(code)
         client_addr, _ = self.client_address
-        logging.info('Sent reply, "%s", "%s"' % (client_addr,str(code)))
-        return ret        
-        
-    def check_repo_url(self,address):
-        """Check if the repository address is valid and allowed"""
+        logging.info('Sent reply, %s, %s' % (client_addr, str(code)))
+        return ret
 
+    def check_repo_url(self, address):
+        """Check if the repository address is valid and allowed"""
         if self.allowedRepos is None:
             return True
-        
         hostname = address.partition("@")[2].partition(":")[0]
-
         if hostname in self.allowedRepos:
             return True
         else:
             return False
 
     def do_POST(self):
-        self.handle_post_path()
-        
-    def handle_post_path(self):
         client_addr, _ = self.client_address
         if not self.check_ip(client_addr):
             logging.info('Client address not allowed, %s',
@@ -134,4 +128,5 @@ class HookHandler(BaseHTTPRequestHandler,object):
                               body=content,
                               params=get_params)
         except KeyError:
-            raise RoutingError('Cannot find "%s" in routing table' % post_path)
+            self.send_response(404)
+        return None
