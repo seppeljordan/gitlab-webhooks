@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright 2014 Sebastian Jordan
 
 # This program is free software: you can redistribute it and/or modify
@@ -15,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from distutils.core import setup
+from setuptools import setup
 
 long_description=open('README.rst')
 
